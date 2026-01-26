@@ -67,7 +67,7 @@ jobs:
           Remove-Item -Path build, nuitka_setup_temp.dist, nuitka_setup_temp.build -Recurse -Force -ErrorAction SilentlyContinue
 
       - name: Build with Cython and Nuitka
-        run: python build_ultimate.py
+        run: python ./script/build_ultimate.py
 
       - name: Rename artifact (Windows)
         if: runner.os == 'Windows'
