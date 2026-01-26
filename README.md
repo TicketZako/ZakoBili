@@ -1,10 +1,13 @@
-# ✨ ZakoBili ✨
-
 <div align="center">
 
-![Python](https://img.shields.io/badge/Python-3.13-blue?style=for-the-badge&logo=python)
-![License](https://img.shields.io/badge/License-Apache%202.0-green?style=for-the-badge)
-![CLI](https://img.shields.io/badge/Interface-CLI-purple?style=for-the-badge)
+# ✨ ZakoBili ✨
+
+![Python](https://img.shields.io/badge/Python-3.x-blue?style=flat-square&logo=python)
+![License](https://img.shields.io/badge/License-Apache%202.0-success?style=flat-square&logo=apache)
+
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-informational?style=flat-square&logo=platformdotsh)
+![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square&logo=github)
+
 
 **ヾ(◍°∇°◍)ﾉﾞ 玖殇真得超级可爱呜 ～**
 
@@ -12,76 +15,100 @@
 
 ---
 
-## 简介
+## 📖 简介
 
-ZakoBili 是一个专为 [哔哩哔哩](https://mall.bilibili.com) 设计的票务选购工具喵~ (｡◕‿◕｡)
-
-通过调用手机端接口，帮助大家更方便快捷地选购心仪的票务，再也不用担心手速不够快啦！✨
+ZakoBili 是一款专为 [哔哩哔哩](https://mall.bilibili.com) 平台设计的票务选购辅助工具
 
 > [!NOTE]
-> 本软件仅供学习交流使用。
+> 本软件仅供学习交流使用，请勿用于商业用途或非法目的
+
+### ✨ 核心特性
+
+- 🚀 **高效便捷** - 智能调用手机端接口，提升选购效率
+- 🎯 **精准选购** - 支持指定场次、票档，精准匹配需求
+- 🎨 **友好界面** - 清晰的命令行交互，操作简单直观
+- ⚡ **快速响应** - 优化的请求逻辑，减少延迟
 
 ---
 
-## 下载
+## 📥 下载与安装
 
-本软件仅提供二进制版本下载。
+### 获取方式
 
-请通过 [Releases 页面](https://github.com/TicketZako/ZakoBili/releases) 获取预编译的二进制文件。
+访问 [Releases](https://github.com/TicketZako/ZakoBili/releases) 下载适合您操作系统的最新版本：
+
+- 💻 **Windows** - 下载 `.exe` 文件
+- 🍎 **macOS** - 下载对应的二进制文件
+- 🐧 **Linux** - 下载对应的二进制文件
+
+### 快速开始
+
+1. 下载对应平台的二进制文件
+2. 运行程序，根据提示配置账号信息
+3. 开始选购心仪的票务
+4. 执行选购任务
 
 ---
 
-## 免责声明
+## ⚠️ 免责声明
+
+> [!WARNING]
+> 使用本软件前请仔细阅读以下条款
+
+### 使用须知
+
+- 本软件**仅供学习交流使用**，严禁用于任何商业用途或非法目的
+- 使用本软件所产生的任何后果由使用者自行承担
+- 请遵守 [哔哩哔哩](https://www.bilibili.com) 平台使用规则，合理使用，勿进行恶意刷票
+- 网站接口可能随时变更，本软件不保证功能的持续有效性
+- 使用本软件即表示您已阅读并同意本免责声明
+
+### 风险提示
+
+开发者不对以下情况负责：
+- 因使用本软件导致的账号封禁或限制
+- 因使用本软件导致的任何经济损失
+- 因使用本软件引发的任何法律纠纷
+- 因网站接口变更导致的软件无法使用
+
+### 免责范围
+
+开发者不对本软件提供任何形式的担保，包括但不限于：
+- 软件功能的完整性
+- 软件运行的稳定性
+- 软件的安全性
+- 软件与网站的兼容性
+
+---
+
+## 📄 许可证
+
+本项目采用 [Apache License 2.0](LICENSE) 许可证
+
+---
+
+## 🤝 反馈
+
+欢迎提交 `Issue` ！
+
+我们非常重视用户的反馈意见 (◕‿◕)♡
+
+---
+
+## 🔗 相关链接
+
+- 📦 [官方 Releases 页面](https://github.com/TicketZako/ZakoBili/releases) - 获取最新版本
+- 🐞 [问题反馈](https://github.com/TicketZako/ZakoBili/issues) - 提交 Bug 或建议
+
+---
 
 <div align="center">
 
-### ⚠️ 重要提示 ⚠️
+**如果这个项目对你有帮助，不妨给个 Star 支持一下哦~ (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧**
 
-</div>
-
-1. **本软件仅供学习交流使用**，不得用于任何商业用途或非法目的。
-
-2. **使用本软件所产生的任何后果由使用者自行承担**，开发者不对以下情况负责：
-   - 因使用本软件导致的账号封禁
-   - 因使用本软件导致的经济损失
-   - 因使用本软件导致的任何法律纠纷
-   - 因网站接口变更导致的软件无法使用
-
-3. **请遵守网站使用规则**，合理使用本软件，不要进行恶意刷票、抢票等行为。
-
-4. **本软件不保证任何功能的有效性**，网站接口可能随时变更，软件可能无法正常工作。
-
-5. **使用本软件即表示您已阅读并同意本免责声明**，如不同意，请立即停止使用。
-
-6. **开发者不对本软件提供任何形式的担保**，包括但不限于：
-   - 软件功能的完整性
-   - 软件运行的稳定性
-   - 软件的安全性
-   - 软件与网站的兼容性
-
-7. **请尊重网站运营方的权益**，不要使用本软件进行任何可能损害网站利益的行为。
+[![Star History Chart](https://api.star-history.com/svg?repos=TicketZako/ZakoBili&type=Date)](https://star-history.com/#TicketZako/ZakoBili&Date)
 
 ---
-
-## 许可证
-
-本项目采用 [Apache License 2.0](LICENSE) 许可证。
-
----
-
-## 贡献
-
-欢迎提交 Issue！(◕‿◕)♡
-
----
-
-## Star History
-
-如果这个项目对你有帮助，不妨给个 Star 支持一下哦~ (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧
-
----
-
-<div align="center">
 
 **Made with ❤️ and 🎀 by TicketZako Team**
 
