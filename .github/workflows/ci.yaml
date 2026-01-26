@@ -1,0 +1,148 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g., v1.0.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: TicketZako/FuckBili
+          ref: main
+          token: ${{ secrets.REPO_TOKEN }}
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+          cache-dependency-path: |
+            **/requirements*.txt
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create temporary script for Nuitka setup
+        run: |
+          echo "print('Nuitka environment setup')" > nuitka_setup_temp.py
+
+      - name: Install and Cache Nuitka with Nuitka-Action
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          nuitka-version: main
+          script-name: nuitka_setup_temp.py
+          mode: standalone
+        continue-on-error: true
+
+      - name: Cleanup temporary build files (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          rm -f nuitka_setup_temp.py
+          rm -rf build nuitka_setup_temp.dist nuitka_setup_temp.build
+
+      - name: Cleanup temporary build files (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Remove-Item -Path nuitka_setup_temp.py -ErrorAction SilentlyContinue
+          Remove-Item -Path build, nuitka_setup_temp.dist, nuitka_setup_temp.build -Recurse -Force -ErrorAction SilentlyContinue
+
+      - name: Build with Cython and Nuitka
+        run: python build_ultimate.py
+
+      - name: Rename artifact (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $version = "${{ inputs.version }}"
+          $os = "Windows"
+          $arch = (python -c "import platform; print(platform.machine().lower())")
+          $file = Get-ChildItem -Path dist -File | Select-Object -First 1
+          if ($file) {
+            $newname = "$version-$os-$arch-$($file.Name)"
+            Rename-Item -Path $file.FullName -NewName $newname
+            Write-Host "Renamed to: $newname"
+          }
+
+      - name: Rename artifact (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          version="${{ inputs.version }}"
+          os="Linux"
+          arch=$(python -c "import platform; print(platform.machine().lower())")
+          file=$(ls dist/* 2>/dev/null | head -n 1 | xargs -n 1 basename)
+          if [ -n "$file" ]; then
+            newname="${version}-${os}-${arch}-${file}"
+            mv "dist/$file" "dist/$newname"
+            echo "Renamed to: $newname"
+          fi
+
+      - name: Rename artifact (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          version="${{ inputs.version }}"
+          os="macOS"
+          arch=$(python -c "import platform; print(platform.machine().lower())")
+          file=$(ls dist/* 2>/dev/null | head -n 1 | xargs -n 1 basename)
+          if [ -n "$file" ]; then
+            newname="${version}-${os}-${arch}-${file}"
+            mv "dist/$file" "dist/$newname"
+            echo "Renamed to: $newname"
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-${{ inputs.version }}
+          path: dist/*
+          retention-days: 30
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: "*"
+          merge-multiple: false
+
+      - name: List downloaded artifacts
+        run: |
+          echo "Artifacts structure:"
+          find artifacts -type f || echo "No files found"
+          ls -la artifacts/ || echo "Artifacts directory not found"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.REPO_TOKEN }}
+          tag_name: ${{ github.event.inputs.version }}
+          name: Release ${{ github.event.inputs.version }}
+          files: artifacts/**/*
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: false
