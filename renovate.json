@@ -3,5 +3,18 @@
   "extends": [
     "config:recommended"
   ],
-  "enabledManagers": ["github-actions"]
+  "enabledManagers": ["github-actions"],
+  "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["actions/setup-python"],
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "enabled": true
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchDepNames": ["python"],
+      "enabled": false
+    }
+  ]
 }
