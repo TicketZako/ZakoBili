@@ -74,11 +74,13 @@ jobs:
         shell: pwsh
         run: |
           $version = "${{ inputs.version }}"
-          $os = "Windows"
+          $os = "windows"
           $arch = (python -c "import platform; print(platform.machine().lower())")
           $file = Get-ChildItem -Path dist -File | Select-Object -First 1
           if ($file) {
-            $newname = "$version-$os-$arch-$($file.Name)"
+            $basename = $file.BaseName
+            $ext = $file.Extension
+            $newname = "${basename}-${version}-${os}-${arch}${ext}"
             Rename-Item -Path $file.FullName -NewName $newname
             Write-Host "Renamed to: $newname"
           }
@@ -87,11 +89,19 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           version="${{ inputs.version }}"
-          os="Linux"
+          os="linux"
           arch=$(python -c "import platform; print(platform.machine().lower())")
           file=$(ls dist/* 2>/dev/null | head -n 1 | xargs -n 1 basename)
           if [ -n "$file" ]; then
-            newname="${version}-${os}-${arch}-${file}"
+            filename=$(basename "$file")
+            if [[ "$filename" == *.* ]] && [[ "${filename%.*}" != "" ]]; then
+              basename="${filename%.*}"
+              ext=".${filename##*.}"
+            else
+              basename="$filename"
+              ext=""
+            fi
+            newname="${basename}-${version}-${os}-${arch}${ext}"
             mv "dist/$file" "dist/$newname"
             echo "Renamed to: $newname"
           fi
@@ -100,11 +110,19 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           version="${{ inputs.version }}"
-          os="macOS"
+          os="darwin"
           arch=$(python -c "import platform; print(platform.machine().lower())")
           file=$(ls dist/* 2>/dev/null | head -n 1 | xargs -n 1 basename)
           if [ -n "$file" ]; then
-            newname="${version}-${os}-${arch}-${file}"
+            filename=$(basename "$file")
+            if [[ "$filename" == *.* ]] && [[ "${filename%.*}" != "" ]]; then
+              basename="${filename%.*}"
+              ext=".${filename##*.}"
+            else
+              basename="$filename"
+              ext=""
+            fi
+            newname="${basename}-${version}-${os}-${arch}${ext}"
             mv "dist/$file" "dist/$newname"
             echo "Renamed to: $newname"
           fi

@@ -6,7 +6,7 @@
 ![License](https://img.shields.io/badge/License-Apache%202.0-success?style=flat-square&logo=apache)
 
 ![CLI](https://img.shields.io/badge/Interface-CLI-blue?style=flat-square)
-![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-informational?style=flat-square&logo=platformdotsh)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-informational?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square&logo=github)
 
 
@@ -18,7 +18,7 @@
 
 ## 📖 简介
 
-**ZakoBili** 是一款专为 [哔哩哔哩](https://mall.bilibili.com) 平台设计的票务选购辅助工具
+**ZakoBili** 是一款专为 [哔哩哔哩](https://mall.bilibili.com) 设计的票务选购辅助工具喵~ (｡◕‿◕｡)
 
 > [!NOTE]
 > 本软件仅供学习交流使用，请勿用于商业用途或非法目的
