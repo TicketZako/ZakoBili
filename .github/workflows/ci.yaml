@@ -154,7 +154,7 @@ jobs:
           ls -la artifacts/ || echo "Artifacts directory not found"
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           token: ${{ secrets.REPO_TOKEN }}
           tag_name: ${{ github.event.inputs.version }}
