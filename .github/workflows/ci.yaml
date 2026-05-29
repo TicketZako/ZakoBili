@@ -131,11 +131,6 @@ jobs:
             artifact_name: Linux
             os_tag: linux
             python_platform: x86_64-unknown-linux-gnu
-          - libc: musl
-            image: androsh7/nuitka-compiler:latest-x86_64-musl-1.2-py3.13
-            artifact_name: Linux-musl
-            os_tag: linux-musl
-            python_platform: x86_64-unknown-linux-musl
 
     runs-on: ubuntu-latest
 
