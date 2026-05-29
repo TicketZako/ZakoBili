@@ -133,10 +133,6 @@ jobs:
             os_tag: linux-musl
 
     runs-on: ubuntu-22.04
-    # Do not use actions/setup-python here: it installs host-matched binaries that
-    # fail inside these containers due to GLIBC / musl mismatch.
-    container:
-      image: ${{ matrix.image }}
 
     steps:
       - name: Checkout
@@ -146,23 +142,30 @@ jobs:
           ref: main
           token: ${{ secrets.REPO_TOKEN }}
 
-      - name: Install build tools
-        run: |
-          if ! command -v git >/dev/null; then
-            yum install -y git || (apt-get update && apt-get install -y git)
-          fi
-          python -m pip install --upgrade pip
-          pip install -U "git+https://github.com/Nuitka/Nuitka.git@main"
-          pip install -r requirements.txt
-
       - name: Build with Cython and Nuitka
-        run: python ./script/build_ultimate.py
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace \
+            "${{ matrix.image }}" \
+            bash -euxo pipefail -c '
+              if ! command -v git >/dev/null; then
+                yum install -y git || (apt-get update && apt-get install -y git)
+              fi
+              python -m pip install --upgrade pip
+              pip install -U "git+https://github.com/Nuitka/Nuitka.git@main"
+              pip install -r requirements.txt
+              python ./script/build_ultimate.py
+            '
+
+      - name: Fix dist permissions
+        run: sudo chown -R "$(id -u):$(id -g)" dist
 
       - name: Rename artifact
         run: |
           version="${{ inputs.version }}"
           os="${{ matrix.os_tag }}"
-          arch=$(python -c "import platform; print(platform.machine().lower())")
+          arch="x86_64"
           file=$(ls dist/* 2>/dev/null | head -n 1 | xargs -n 1 basename)
           if [ -n "$file" ]; then
             filename=$(basename "$file")
