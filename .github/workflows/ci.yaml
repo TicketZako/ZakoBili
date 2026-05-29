@@ -120,6 +120,9 @@ jobs:
           retention-days: 30
 
   build-linux:
+    env:
+      STANDALONE_RELEASE: "20260510"
+      STANDALONE_PYTHON: "3.13.13"
     strategy:
       matrix:
         include:
@@ -127,10 +130,12 @@ jobs:
             image: androsh7/nuitka-compiler:latest-x86_64-glibc-2.17-py3.13
             artifact_name: Linux
             os_tag: linux
+            python_platform: x86_64-unknown-linux-gnu
           - libc: musl
             image: androsh7/nuitka-compiler:latest-x86_64-musl-1.2-py3.13
             artifact_name: Linux-musl
             os_tag: linux-musl
+            python_platform: x86_64-unknown-linux-musl
 
     runs-on: ubuntu-latest
 
@@ -154,6 +159,10 @@ jobs:
               fi
               pip install --upgrade pip
               pip install -U "git+https://github.com/Nuitka/Nuitka.git@main"
+              standalone_archive="cpython-${{ env.STANDALONE_PYTHON }}+${{ env.STANDALONE_RELEASE }}-${{ matrix.python_platform }}-install_only_stripped.tar.gz"
+              curl -fsSL "https://github.com/astral-sh/python-build-standalone/releases/download/${{ env.STANDALONE_RELEASE }}/${standalone_archive}" \
+                | tar xz -C /tmp
+              build_python=/tmp/python/bin/python3
               if [ -d /opt/openssl/include ]; then
                 export OPENSSL_DIR=/opt/openssl
                 export OPENSSL_INCLUDE_DIR=/opt/openssl/include
@@ -167,7 +176,10 @@ jobs:
                 fi
                 export PKG_CONFIG_PATH="${OPENSSL_LIB_DIR}/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}"
               fi
-              pip install -r requirements.txt
+              "${build_python}" -m pip install --upgrade pip
+              export PYO3_PYTHON="${build_python}"
+              export PYTHON_SYS_EXECUTABLE="${build_python}"
+              "${build_python}" -m pip install -r requirements.txt --prefix=/opt/python-3.13
               python3 ./script/build_ultimate.py
             '
 
