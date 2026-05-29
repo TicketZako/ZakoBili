@@ -152,10 +152,10 @@ jobs:
               if ! command -v git >/dev/null; then
                 yum install -y git || (apt-get update && apt-get install -y git)
               fi
-              python -m pip install --upgrade pip
+              pip install --upgrade pip
               pip install -U "git+https://github.com/Nuitka/Nuitka.git@main"
               pip install -r requirements.txt
-              python ./script/build_ultimate.py
+              python3 ./script/build_ultimate.py
             '
 
       - name: Fix dist permissions
