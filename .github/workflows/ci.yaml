@@ -16,7 +16,13 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        include:
+          - os: windows-latest
+            artifact_name: Windows
+          - os: macos-latest
+            artifact_name: macOS
+          - os: macos-15-intel
+            artifact_name: macOS-x86_64
 
     runs-on: ${{ matrix.os }}
 
@@ -53,8 +59,8 @@ jobs:
           mode: standalone
         continue-on-error: true
 
-      - name: Cleanup temporary build files (Linux/macOS)
-        if: runner.os != 'Windows'
+      - name: Cleanup temporary build files (macOS)
+        if: runner.os == 'macOS'
         run: |
           rm -f nuitka_setup_temp.py
           rm -rf build nuitka_setup_temp.dist nuitka_setup_temp.build
@@ -85,27 +91,6 @@ jobs:
             Write-Host "Renamed to: $newname"
           }
 
-      - name: Rename artifact (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          version="${{ inputs.version }}"
-          os="linux"
-          arch=$(python -c "import platform; print(platform.machine().lower())")
-          file=$(ls dist/* 2>/dev/null | head -n 1 | xargs -n 1 basename)
-          if [ -n "$file" ]; then
-            filename=$(basename "$file")
-            if [[ "$filename" == *.* ]] && [[ "${filename%.*}" != "" ]]; then
-              basename="${filename%.*}"
-              ext=".${filename##*.}"
-            else
-              basename="$filename"
-              ext=""
-            fi
-            newname="${basename}-${version}-${os}-${arch}${ext}"
-            mv "dist/$file" "dist/$newname"
-            echo "Renamed to: $newname"
-          fi
-
       - name: Rename artifact (macOS)
         if: runner.os == 'macOS'
         run: |
@@ -130,12 +115,78 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ runner.os }}-${{ inputs.version }}
+          name: ${{ matrix.artifact_name }}-${{ inputs.version }}
+          path: dist/*
+          retention-days: 30
+
+  build-linux:
+    strategy:
+      matrix:
+        include:
+          - libc: glibc
+            image: androsh7/nuitka-compiler:latest-x86_64-glibc-2.17-py3.13
+            artifact_name: Linux
+            os_tag: linux
+          - libc: musl
+            image: androsh7/nuitka-compiler:latest-x86_64-musl-1.2-py3.13
+            artifact_name: Linux-musl
+            os_tag: linux-musl
+
+    runs-on: ubuntu-22.04
+    # Do not use actions/setup-python here: it installs host-matched binaries that
+    # fail inside these containers due to GLIBC / musl mismatch.
+    container:
+      image: ${{ matrix.image }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          repository: TicketZako/FuckBili
+          ref: main
+          token: ${{ secrets.REPO_TOKEN }}
+
+      - name: Install build tools
+        run: |
+          if ! command -v git >/dev/null; then
+            yum install -y git || (apt-get update && apt-get install -y git)
+          fi
+          python -m pip install --upgrade pip
+          pip install -U "git+https://github.com/Nuitka/Nuitka.git@main"
+          pip install -r requirements.txt
+
+      - name: Build with Cython and Nuitka
+        run: python ./script/build_ultimate.py
+
+      - name: Rename artifact
+        run: |
+          version="${{ inputs.version }}"
+          os="${{ matrix.os_tag }}"
+          arch=$(python -c "import platform; print(platform.machine().lower())")
+          file=$(ls dist/* 2>/dev/null | head -n 1 | xargs -n 1 basename)
+          if [ -n "$file" ]; then
+            filename=$(basename "$file")
+            if [[ "$filename" == *.* ]] && [[ "${filename%.*}" != "" ]]; then
+              basename="${filename%.*}"
+              ext=".${filename##*.}"
+            else
+              basename="$filename"
+              ext=""
+            fi
+            newname="${basename}-${version}-${os}-${arch}${ext}"
+            mv "dist/$file" "dist/$newname"
+            echo "Renamed to: $newname"
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.artifact_name }}-${{ inputs.version }}
           path: dist/*
           retention-days: 30
 
   release:
-    needs: build
+    needs: [build, build-linux]
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch'
 
