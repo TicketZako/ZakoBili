@@ -21,8 +21,6 @@ jobs:
             artifact_name: Windows
           - os: macos-latest
             artifact_name: macOS
-          - os: macos-15-intel
-            artifact_name: macOS-x86_64
 
     runs-on: ${{ matrix.os }}
 
