@@ -45,33 +45,23 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Create temporary script for Nuitka setup
-        run: |
-          echo "print('Nuitka environment setup')" > nuitka_setup_temp.py
-
-      - name: Install and Cache Nuitka with Nuitka-Action
-        uses: Nuitka/Nuitka-Action@main
-        with:
-          nuitka-version: main
-          script-name: nuitka_setup_temp.py
-          mode: standalone
-        continue-on-error: true
-
       - name: Cleanup temporary build files (macOS)
         if: runner.os == 'macOS'
         run: |
-          rm -f nuitka_setup_temp.py
           rm -rf build nuitka_setup_temp.dist nuitka_setup_temp.build
 
       - name: Cleanup temporary build files (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          Remove-Item -Path nuitka_setup_temp.py -ErrorAction SilentlyContinue
           Remove-Item -Path build, nuitka_setup_temp.dist, nuitka_setup_temp.build -Recurse -Force -ErrorAction SilentlyContinue
 
       - name: Build with Cython and Nuitka
         run: python ./script/build_ultimate.py
+
+      - name: Smoke test macOS artifact
+        if: runner.os == 'macOS'
+        run: ./dist/ZakoBili --help
 
       - name: Rename artifact (Windows)
         if: runner.os == 'Windows'
@@ -151,7 +141,6 @@ jobs:
                 yum install -y git || (apt-get update && apt-get install -y git)
               fi
               pip install --upgrade pip
-              pip install -U "git+https://github.com/Nuitka/Nuitka.git@main"
               standalone_archive="cpython-${{ env.STANDALONE_PYTHON }}+${{ env.STANDALONE_RELEASE }}-${{ matrix.python_platform }}-install_only_stripped.tar.gz"
               curl -fsSL "https://github.com/astral-sh/python-build-standalone/releases/download/${{ env.STANDALONE_RELEASE }}/${standalone_archive}" \
                 | tar xz -C /tmp
@@ -178,6 +167,9 @@ jobs:
 
       - name: Fix dist permissions
         run: sudo chown -R "$(id -u):$(id -g)" dist
+
+      - name: Smoke test Linux artifact
+        run: ./dist/ZakoBili --help
 
       - name: Rename artifact
         run: |
